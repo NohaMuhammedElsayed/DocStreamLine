@@ -8,14 +8,14 @@ const app = express()
 
 await connectDB();
 
-
+//felo
 // Middleware
 app.use(express.json())
 app.use(cors())
 
 // Simple health-check route
 app.get('/', (req, res) => {
-  res.send('Server is running')
+  res.send('Server running')
 })
 
 app.use('/api/inngest', serve({ client: inngest, functions }))
