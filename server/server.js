@@ -15,7 +15,7 @@ app.use(cors())
 
 // Simple health-check route
 app.get('/', (req, res) => {
-  res.send('Server running')
+  res.send('Server is running')
 })
 
 app.use('/api/inngest', serve({ client: inngest, functions }))
