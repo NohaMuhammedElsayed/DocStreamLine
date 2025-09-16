@@ -2,19 +2,19 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    _id: { type: String, required: true },           
-    email: { type: String, required: true },
-    full_name: { type: String, required: true },
+    // --- Core Identifiers ---
+    _id: { type: String },
     username: { type: String, unique: true },
+    email: { type: String },
+    password: { type: String, required: false },
+
+    // --- Profile Details ---
+    full_name: { type: String },
     bio: { type: String, default: "Hey Doctors!" },
     profile_picture: { type: String, default: "" },
     cover_photo: { type: String, default: "" },
     location: { type: String, default: "" },
-
-    medicalDegree: { type: String, default: "" },
-    medicalSyndicateID: { type: String, default: "", sparse: true },
-    syndicateCardImage: { type: String, default: "" },
-
+    // --- Social & Connections ---
     followers: [{ type: String, ref: "User" }],
     following: [{ type: String, ref: "User" }],
     connections: [{ type: String, ref: "User" }],
@@ -22,4 +22,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true, minimize: false }
 );
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
