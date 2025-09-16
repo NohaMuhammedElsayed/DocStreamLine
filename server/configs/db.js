@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-const connectDB = async() => {
-    try{
-        mongoose.connection.on('connected', ()=> console.log('Database connected'))
-        await mongoose.connect(`${process.env.MONGODB_URL}/socialmediaApp`)
-    } catch(error) {
-        console.log(error.message)
-    }
+const connectDB = async () => {
+  try{
+    mongoose.connection.on('connected', ()=> console.log('Database Connected'))
+    await mongoose.connect(`${process.env.MONGODB_URI}/docstreamline2`)
+  } catch (error) {
+    console.log(error.message)
+  }
 }
 
-export  default connectDB
+export default connectDB
