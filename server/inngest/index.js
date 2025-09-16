@@ -39,10 +39,9 @@ const syncUserUpdation = inngest.createFunction(
 
     const updatedUserData = {
       email: email_addresses[0].email_address,
-      full_name: first_name + ' ' + last_name,
-      profile_picture: image_url
-      
-    }
+      full_name: `${first_name || ""}` `${last_name || ""}`.trim(),
+      profile_picture: image_url,
+    };
     await User.findByIdAndUpdate(id, updatedUserData)
   }
 );
