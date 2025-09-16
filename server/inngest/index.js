@@ -9,7 +9,7 @@ export const inngest = new Inngest({ id: "socialmediaApp-app" });
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
   async ({ event }) => {
-    const {id, first_name, last_name, email_addresses, image_url} = event.data
+    const {id, first_name, last_name, email_addresses, profile_image_url, image_url} = event.data
     let username = email_addresses[0].email_address.split('@')[0]
 
     //Check availability of username
@@ -19,13 +19,13 @@ export const inngest = new Inngest({ id: "socialmediaApp-app" });
       username = username + Math.floor(Math.random() * 10000)
     }
 
-    const userData ={
+    const userData = {
       _id: id,
-      email: email_addresses[0].email_address,
-      full_name: first_name + " " + last_name,
-      profile_picture: image_url,
-      username
-    }
+      username: username || undefined, // مش دايمًا بيرجع
+      email: email_addresses[0]?.email_address,
+      full_name: `${first_name || ""}` `${last_name || ""}`.trim(),
+      profile_picture: profile_image_url || image_url || "",
+    };
     await User.create(userData)
   }
 );
@@ -40,8 +40,7 @@ const syncUserUpdation = inngest.createFunction(
     const updatedUserData = {
       email: email_addresses[0].email_address,
       full_name: first_name + ' ' + last_name,
-      profile_picture: image_url,
-      username
+      profile_picture: image_url
       
     }
     await User.findByIdAndUpdate(id, updatedUserData)
