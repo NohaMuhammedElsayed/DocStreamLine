@@ -27,6 +27,7 @@ export const inngest = new Inngest({ id: "socialmediaApp-app" });
       profile_picture: profile_image_url || image_url || "",
     };
     await User.create(userData)
+     return { status: "ok", user: userData };
   }
 );
 
@@ -43,6 +44,7 @@ const syncUserUpdation = inngest.createFunction(
       profile_picture: image_url,
     };
     await User.findByIdAndUpdate(id, updatedUserData)
+     return { status: "ok", user: updatedUserData };
   }
 );
 
@@ -53,6 +55,7 @@ const syncUserDeletion = inngest.createFunction(
   async ({ event }) => {
     const {id} = event.data
     await User.findByIdAndDelete(id)
+     return { status: "ok", deletedId: id };
   }
 );
 
