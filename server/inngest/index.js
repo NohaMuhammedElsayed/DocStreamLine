@@ -23,7 +23,7 @@ export const inngest = new Inngest({ id: "socialmediaApp-app" });
       _id: id,
       username: username || undefined, // مش دايمًا بيرجع
       email: email_addresses[0]?.email_address,
-      full_name: `${first_name || ""}` `${last_name || ""}`.trim(),
+      full_name: `${first_name ||""} ${last_name ||""}`.trim(),
       profile_picture: profile_image_url || image_url || "",
     };
     await User.create(userData)
@@ -39,7 +39,7 @@ const syncUserUpdation = inngest.createFunction(
 
     const updatedUserData = {
       email: email_addresses[0].email_address,
-      full_name: `${first_name || ""}` `${last_name || ""}`.trim(),
+      full_name: `${first_name ||""} ${last_name ||""}`.trim(),
       profile_picture: image_url,
     };
     await User.findByIdAndUpdate(id, updatedUserData)
