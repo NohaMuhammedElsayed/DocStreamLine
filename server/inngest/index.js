@@ -1,18 +1,19 @@
 // server/inngest/index.js
 import { Inngest } from "inngest";
 import User from "../models/User.js";
+import { isTemporalZonedDateTime } from "inngest/helpers/temporal";
 
 // ✅ إنشاء Client
 export const inngest = new Inngest({ id: "socialmediaApp-app" });
 
 /**
- * Function: Create user
+ * Function: Create or upsert user
  */
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
   async ({ event }) => {
-    console.log("🔥 User Creatd Event:", event.data);
+    console.log("🔥 User Created Event:", event.data);
 
     const {
       id,
@@ -23,7 +24,8 @@ export const syncUserCreation = inngest.createFunction(
       image_url,
     } = event.data;
 
-    let username = email_addresses[0].email_address.split("@")[0];
+    // ✅ إنشاء username من الإيميل
+    let username = email_addresses?.[0]?.email_address?.split("@")[0] || "user";
     const existing = await User.findOne({ username });
     if (existing) {
       username = username + Math.floor(Math.random() * 10000);
@@ -31,41 +33,47 @@ export const syncUserCreation = inngest.createFunction(
 
     const userData = {
       _id: id,
-      username: username || undefined, // مش دايمًا بيرجع
-      email: email_addresses[0]?.email_address,
+      username,
+      email: email_addresses?.[0]?.email_address || "",
       full_name: `${first_name || ""} ${last_name || ""}`.trim(),
       profile_picture: profile_image_url || image_url || "",
     };
-    console.log(" User notsaved to DB :(");
-    await User.create(userData);
-    console.log("✅ User saved to DB:", userData);
 
-    return { status: "ok", user: userData };
+    // ✅ استعمل upsert: لو موجود يعمل update، لو مش موجود يعمل insert
+    const savedUser = await User.findByIdAndUpdate(id, userData, {
+      upsert: true,
+      new: true,
+      setDefaultsOnInsert: true,
+    });
+
+    console.log("✅ User saved/updated in DB:", savedUser);
+
+    return { status: "ok", user: savedUser };
   }
 );
 
-/**
- * Function: Update user
- */
 export const syncUserUpdation = inngest.createFunction(
   { id: "update-user-from-clerk" },
   { event: "clerk/user.updated" },
   async ({ event }) => {
-    console.log("♻️ User Updated Event:", event.data);
+    console.log("♻️ User Ued Event:", event.data);
 
     const { id, first_name, last_name, email_addresses, image_url } =
       event.data;
 
     const updatedUserData = {
-      email: email_addresses[0].email_address,
+      email: email_addresses?.[0]?.email_address || "",
       full_name: `${first_name || ""} ${last_name || ""}`.trim(),
-      profile_picture: image_url,
+      profile_picture: image_url || "",
     };
 
-    await User.findByIdAndUpdate(id, updatedUserData);
-    console.log("✅ User updated in DB:", updatedUserData);
+    const updatedUser = await User.findByIdAndUpdate(id, updatedUserData, {
+      new: true,
+    });
 
-    return { status: "ok", user: updatedUserData };
+    console.log("✅ User updated in DB:", updatedUser);
+
+    return { status: "ok", user: updatedUser };
   }
 );
 
