@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL, {
-      dbName: "socialmediaApp",      // دي بتحدد الـ D
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "socialmediaAppp",      // دي بتحدد الـ D
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
