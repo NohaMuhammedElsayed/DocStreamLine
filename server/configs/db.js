@@ -1,12 +1,18 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
-  try{
-    mongoose.connection.on('connected', ()=> console.log('Database Connected'))
-    await mongoose.connect(`${process.env.MONGODB_URL}/socialmediaApp`)
-  } catch (error) {
-    console.log(error.message)
-  }
-}
+  try {
+    await mongoose.connect(process.env.MONGODB_URL, {
+      dbName: "socialmediaApp",      // دي بتحدد الـ D
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-export default connectDB
+    console.log("✅ Database Connected");
+  } catch (error) {
+    console.error("❌ DB Connection Error:", error.message);
+    process.exit(1);
+  }
+};
+
+export default connectDB;
