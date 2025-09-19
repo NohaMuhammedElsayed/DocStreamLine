@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
     bio: { type: String, default: "Hey Doctors!" },
     profile_picture: { type: String, default: "" },
     cover_photo: { type: String, default: "" },
-    location: { type: String, default: "" },
+    specialty: { type: String, default: "" },
     // --- Social & Connections ---
     followers: [{ type: String, ref: "User" }],
     following: [{ type: String, ref: "User" }],
