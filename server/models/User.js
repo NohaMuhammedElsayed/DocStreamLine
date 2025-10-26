@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     // --- Core Identifiers ---
-    _id: { type: String },
-    username: { type: String, unique: true },
+    _id: { type: String, required: true },
+    username: { type: String, unique: true, sparse: true },
     email: { type: String },
     password: { type: String, required: false },
 
