@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
 
 import Layout from "./pages/Layout";
@@ -13,9 +13,21 @@ import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import Assistant from "./pages/Assistant";
 import MyClinic from "./pages/MyClinic";
+import { useEffect } from "react";
+import { get } from "mongoose";
 
 export default function App() {
   const { user } = useUser();
+
+  const {getToken} = useAuth();
+
+  useEffect(() => {
+    if(user){
+      getToken().then((token)=>console.log(token));
+    }
+  }, [user]);
+
+
 
   return (
     <>

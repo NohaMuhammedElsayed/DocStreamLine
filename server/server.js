@@ -4,22 +4,42 @@ import "dotenv/config";
 import connectDB from "./configs/db.js";
 import { inngest, functions } from "./inngest/index.js";
 import { serve } from "inngest/express";
-import { clerkMiddleware } from '@clerk/express'
+import { clerkMiddleware } from '@clerk/express';
+import userRouter from "./routes/userRoutes.js";
 
 const app = express();
+await connectDB();
 
-    await connectDB();
-    app.use(express.json());
-    app.use(cors());
-    app.use(clerkMiddleware());
+app.use(express.json());
+app.use(cors());
+// Sanitize Authorization header to avoid passing obviously-invalid values to
+// Clerk's decoder which will throw a decode error and return an HTML stack.
+app.use((req, res, next) => {
+	try {
+		const auth = req.headers.authorization || req.headers.Authorization;
+		if (auth && typeof auth === 'string') {
+			// Expect format: "Bearer <token>"; token should be a JWT with two dots.
+			const parts = auth.split(' ');
+			if (parts.length === 2) {
+				const token = parts[1];
+				if ((token.match(/\./g) || []).length !== 2) {
+					// remove invalid Authorization so Clerk middleware won't attempt decode
+					delete req.headers.authorization;
+					delete req.headers.Authorization;
+				}
+			}
+		}
+	} catch (e) {
+		// non-fatal — continue and let Clerk handle auth normally
+		console.warn('Auth header sanitization error', e && e.message ? e.message : e);
+	}
+	next();
+});
+app.use(clerkMiddleware()); // attach req.auth()
 
-    
-    app.get("/", (req, res) => res.send("Server is running"));
+app.get("/", (req, res) => res.send("Server is running"));
+app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/user", userRouter);
 
-    // Inngest endpoint for Clerk webhooks
-    app.use("/api/inngest", serve({ client: inngest, functions }));
-
-    const PORT = process.env.PORT || 4000;
-    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
-  
-
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
